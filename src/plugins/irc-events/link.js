@@ -342,7 +342,7 @@ function handlePreview(client, chan, msg, preview, res) {
 			if(res.size > sizeThreshold * 1024){
 				let w = imageMetadata.width;
 				let h = imageMetadata.height;
-				const scaleFactor = Math.max(w/maxWidth, h/maxHeight);
+				const scaleFactor = Math.max(Math.max(w/maxWidth, h/maxHeight), 1);
 				w = Math.floor(w / scaleFactor);
 				h = Math.floor(h / scaleFactor);
 
