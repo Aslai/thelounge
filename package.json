@@ -62,11 +62,12 @@
     "read-chunk": "3.2.0",
     "semver": "7.3.5",
     "socket.io": "4.4.1",
+    "sharp": "0.28.0",
     "tlds": "1.228.0",
     "ua-parser-js": "1.0.2",
     "uuid": "8.3.2",
     "web-push": "3.4.5",
-    "yarn": "1.22.17"
+    "yarn": "1.22.19"
   },
   "optionalDependencies": {
     "sqlite3": "https://github.com/mapbox/node-sqlite3#918052b538b0effe6c4a44c74a16b2749c08a0d2"

@@ -160,6 +160,42 @@ module.exports = {
 	// This value is set to `50` kilobytes by default.
 	prefetchMaxSearchSize: 50,
 
+	//  ### prefetchMaxThumbnailDimensions
+	//
+	// This value sets the maximum dimensions of transcoded thumbnails. If the
+	// thumbnail is too small to be transcoded, then these dimensions are
+	// ignored
+	prefetchMaxThumbnailDimensions: {
+		width: 250,
+		height: 250
+	},
+
+	//  ### prefetchMaxPreviewDimensions
+	//
+	// This value sets the maximum dimensions of transcoded previews. If the
+	// preview is too small to be transcoded, then these dimensions are
+	// ignored.
+	prefetchMaxPreviewDimensions: {
+		width: 2000,
+		height: 2000
+	},
+
+	//  ### prefetchPreviewTranscodeThreshold
+	//
+	// This value sets the threshold at which prefetched images will be
+	// transcoded to jpg to save on bandwidth, in kilobytes.
+	prefetchPreviewTranscodeThreshold: {
+		thumbnail: 50,
+		preview: 512
+	},
+
+
+	//  ### prefetchTranscodeQuality
+	//
+	// This value sets the jpeg quality for transcoded images.
+	prefetchTranscodeQuality: 75,
+
+
 	// ### `fileUpload`
 	//
 	// Allow uploading files to the server hosting The Lounge.
