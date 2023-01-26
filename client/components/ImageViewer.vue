@@ -27,7 +27,7 @@
 
 			<img
 				ref="image"
-				:src="link.thumb"
+				:src="link.fullSize"
 				alt=""
 				:style="computeImageStyles"
 				@load="onImageLoad"
@@ -106,7 +106,7 @@ export default defineComponent({
 			const links = channel.value.messages
 				.map((msg) => msg.previews)
 				.flat()
-				.filter((preview) => preview.thumb);
+				.filter((preview) => preview.fullSize);
 
 			const currentIndex = links.indexOf(link.value);
 

@@ -104,6 +104,11 @@
 					<a :href="link.link" target="_blank" rel="noopener">Click here</a>
 					to open it in a new window.
 				</em>
+				<em v-else-if="link.error === 'image-dimensions-too-big'">
+					The dimensions of this image are large enough that displaying it could potentially crash your client.
+					<a :href="link.link" target="_blank" rel="noopener">Click here</a>
+					to open it in a new window.
+				</em>
 				<template v-else-if="link.error === 'message'">
 					<div>
 						<em>
@@ -268,7 +273,7 @@ export default defineComponent({
 			switch (props.link.type) {
 				case "error":
 					// Collapse all errors by default unless its a message about image being too big
-					if (props.link.error === "image-too-big") {
+					if (props.link.error === "image-too-big" || props.link.error === "image-dimensions-too-big") {
 						defaultState = store.state.settings.media;
 					}
 

@@ -10,6 +10,7 @@ import storage from "../storage";
 import Client from "../../client";
 import Chan from "../../models/chan";
 import Msg from "../../models/msg";
+import sharp from "sharp";
 
 type FetchRequest = {
 	data: Buffer;
@@ -25,6 +26,7 @@ export type LinkPreview = {
 	head: string;
 	body: string;
 	thumb: string;
+	fullSize: string;
 	size: number;
 	link: string; // Send original matched link to the client
 	shown?: boolean | null;
@@ -65,6 +67,7 @@ export default function (client: Client, chan: Chan, msg: Msg, cleanText: string
 			head: "",
 			body: "",
 			thumb: "",
+			fullSize: "",
 			size: -1,
 			link: link.link, // Send original matched link to the client
 			shown: null,
@@ -356,11 +359,83 @@ function handlePreview(client: Client, chan: Chan, msg: Msg, preview: LinkPrevie
 		return emitPreview(client, chan, msg, preview);
 	}
 
-	storage.store(res.data, extension, (uri) => {
-		preview.thumb = uri;
+	const imageData = sharp(res.data);
+	let imageMetadata :any = {};
 
-		emitPreview(client, chan, msg, preview);
+	const resizeImage = (maxWidth, maxHeight, sizeThreshold, then) => {
+		if (maxWidth <= 0) {
+			maxWidth = 100;
+		}
+
+		if (maxHeight <= 0) {
+			maxHeight = 100;
+		}
+
+		if (!then) {
+			then = ()=>null;
+		}
+
+		if (imageMetadata.width > 0 && imageMetadata.height > 0) {
+
+			if(res.size > sizeThreshold * 1024){
+				let w = imageMetadata.width;
+				let h = imageMetadata.height;
+				const scaleFactor = Math.max(w/maxWidth, h/maxHeight);
+				w = Math.floor(w / scaleFactor);
+				h = Math.floor(h / scaleFactor);
+
+				imageData.resize({width: w, height: h, fit: sharp.fit.cover, kernel: sharp.kernel.cubic}).
+				jpeg({quality: Config.values.prefetchTranscodeQuality}).
+				toBuffer().then(data=>{
+					if(data.length < res.size) {
+						then(data, "jpg");
+					} else {
+						then(res.data, extension);
+					}
+
+					return null;
+				});
+				return;
+			}
+		}
+
+		then(res.data, extension);
+	}
+
+	imageData.metadata().then(function(metadata) {
+		imageMetadata = metadata;
+
+		if(imageMetadata.width * imageMetadata.height > 8000*8000) {
+			// Cowardly refuse to process this image if the dimensions are massive
+			preview.type = "error";
+			preview.error = "image-dimensions-too-big";
+
+			emitPreview(client, chan, msg, preview);
+			return;
+		}
+
+		resizeImage(
+			Config.values.prefetchMaxThumbnailDimensions.width,
+			Config.values.prefetchMaxThumbnailDimensions.height,
+			Config.values.prefetchPreviewTranscodeThreshold.thumbnail,
+			(thumbnailImage, thumbnailExt)=>resizeImage(
+				Config.values.prefetchMaxPreviewDimensions.width,
+				Config.values.prefetchMaxPreviewDimensions.height,
+				Config.values.prefetchPreviewTranscodeThreshold.preview,
+				(previewImage, previewExt)=>{
+					storage.store(thumbnailImage, thumbnailExt, (thumbURI) => {
+						storage.store(previewImage, previewExt, (fullURI) => {
+
+							preview.thumb = thumbURI;
+							preview.fullSize = fullURI;
+
+							emitPreview(client, chan, msg, preview);
+						});
+					});
+				}
+			));
 	});
+
 }
 
 function emitPreview(client: Client, chan: Chan, msg: Msg, preview: LinkPreview) {

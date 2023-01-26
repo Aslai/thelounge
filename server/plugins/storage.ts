@@ -52,7 +52,7 @@ class Storage {
 		});
 	}
 
-	store(data, extension: string, callback: (url: string) => void) {
+	store(data, extension: string, callback: (uri: string) => void) {
 		const hash = crypto.createHash("sha256").update(data).digest("hex");
 		const a = hash.substring(0, 2);
 		const b = hash.substring(2, 4);

@@ -90,6 +90,10 @@ export type ConfigType = {
 	prefetchStorage: boolean;
 	prefetchMaxImageSize: number;
 	prefetchMaxSearchSize: number;
+	prefetchMaxThumbnailDimensions: {width: number; height: number;};
+	prefetchMaxPreviewDimensions: {width: number; height: number;};
+	prefetchPreviewTranscodeThreshold: {thumbnail: number; preview: number;};
+	prefetchTranscodeQuality: number;
 	prefetchTimeout: number;
 	fileUpload: FileUpload;
 	transports: string[];
