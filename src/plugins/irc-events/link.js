@@ -346,6 +346,7 @@ function handlePreview(client, chan, msg, preview, res) {
 				w = Math.floor(w / scaleFactor);
 				h = Math.floor(h / scaleFactor);
 
+
 				imageData.resize({width: w, height: h, fit: sharp.fit.cover, kernel: sharp.kernel.cubic}).
 				jpeg({quality: Helper.config.prefetchTranscodeQuality}).
 				toBuffer().then(data=>{
@@ -356,6 +357,8 @@ function handlePreview(client, chan, msg, preview, res) {
 					}
 
 					return null;
+				}).catch(() => {
+					then(res.data, extension)
 				});
 				return;
 			}
@@ -396,6 +399,14 @@ function handlePreview(client, chan, msg, preview, res) {
 					});
 				}
 			));
+	}).catch(()=>{
+		storage.store(res.data, extension, (uri) => {
+
+			preview.thumb = uri;
+			preview.fullSize = uri;
+
+			emitPreview(client, chan, msg, preview);
+		});
 	});
 
 }
@@ -464,7 +475,7 @@ function fetch(uri, headers) {
 		try {
 			const gotStream = got.stream(uri, {
 				retry: 0,
-				timeout: 5000,
+				timeout: 10000,
 				headers: getRequestHeaders(headers),
 				https: {
 					rejectUnauthorized: false,
